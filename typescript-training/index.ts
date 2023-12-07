@@ -1,7 +1,7 @@
 // Typescript тренажер
 
 // установить ts: npm install typescript
-// скомпилировать ts: ts path-to-file.js
+// скомпилировать ts: tsc path-to-file.js
 
 // некоторые основыне типы в ts
 const helloWorld: string = 'привет, это строка';
