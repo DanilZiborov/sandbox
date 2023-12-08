@@ -1,28 +1,35 @@
-import React from 'react';
-
 import { useQueryClient } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
-import { catsApi } from '../../api/catsApi';
-
-
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export function Cats() {
+
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const {isPending, error, data} = useQuery({ queryKey: ['cats'], queryFn: catsApi.getRandomCat });
+    const getCat = useQuery({
+        queryKey: ['cats'], queryFn: async () => {
+            const res = await axios.get(`https://api.thecatapi.com/v1/images/search`);
+
+            if (res.status !== 200) {
+                throw new Error('Что-то пошло не так');
+            }
+
+            return res;
+        }
+    });
 
     function reloadCat() {
         queryClient.invalidateQueries({ queryKey: ['cats'] })
     }
 
-    if (isPending) return 'Loading...';
-    if (error) return 'Ошибка!';
-
     return (
         <>
             <div className="cat-wrapper">
-                <img src={data?.data[0].url} alt="" />
+                <img src={getCat.data?.data[0].url} alt="" />
             </div>
-            <button onClick={reloadCat}>Котик!</button>
+            <button onClick={reloadCat}>{getCat.fetchStatus === 'fetching' ? 'Минуточку...' : getCat.isError ? 'Ошибка!' : 'Покажи котика'}</button>
+            <button onClick={():void => navigate('/')}>Выйти</button>
         </>
     )
 }
